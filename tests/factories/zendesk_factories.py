@@ -92,8 +92,4 @@ class ZendeskSellResponseFactory(DictFactory):
         top=factory.SelfAttribute('..top'),
     )
     items = factory.List([
-        factory.SubFactory(ZendeskLeadFactory),
-        factory.SubFactory(ZendeskLeadFactory),
-        factory.SubFactory(ZendeskLeadFactory),
-        factory.SubFactory(ZendeskLeadFactory),
     ])
