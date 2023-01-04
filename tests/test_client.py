@@ -6,10 +6,11 @@ from zendesk_sell_firehose_client_strongmind import ZendeskSellFirehoseClient
 
 fake = Faker()
 
+
 def describe_a_zendesk_sell_firehose_client():
     @pytest.fixture
     def api_key():
-        return "1234567890"
+        return fake.word()
 
     @pytest.fixture
     def client(api_key):
@@ -24,12 +25,9 @@ def describe_a_zendesk_sell_firehose_client():
                 ZendeskSellFirehoseClient()
             assert str(e.value) == "No API key provided"
 
-        def describe_when_api_key_is_provided():
-            key = fake.word()
-            client = ZendeskSellFirehoseClient(key)
+        def it_holds_api_key(client, api_key):
+            assert client.api_key == api_key
 
-            def it_holds_api_key():
-                assert client.api_key == key
 
 def a_resource():
     def it_exists(resource):
@@ -131,12 +129,14 @@ def describe_a_loss_reason():
         from zendesk_sell_firehose_client_strongmind.resources import LossReason
         return LossReason()
 
+
 @behaves_like(a_resource)
 def describe_a_note():
     @pytest.fixture
     def resource():
         from zendesk_sell_firehose_client_strongmind.resources import Note
         return Note()
+
 
 @behaves_like(a_resource)
 def describe_an_order():
@@ -145,12 +145,14 @@ def describe_an_order():
         from zendesk_sell_firehose_client_strongmind.resources import Order
         return Order()
 
+
 @behaves_like(a_resource)
 def describe_a_product():
     @pytest.fixture
     def resource():
         from zendesk_sell_firehose_client_strongmind.resources import Product
         return Product()
+
 
 @behaves_like(a_resource)
 def describe_a_source():
@@ -159,12 +161,14 @@ def describe_a_source():
         from zendesk_sell_firehose_client_strongmind.resources import Source
         return Source()
 
+
 @behaves_like(a_resource)
 def describe_a_stage():
     @pytest.fixture
     def resource():
         from zendesk_sell_firehose_client_strongmind.resources import Stage
         return Stage()
+
 
 @behaves_like(a_resource)
 def describe_a_tag():
@@ -173,12 +177,14 @@ def describe_a_tag():
         from zendesk_sell_firehose_client_strongmind.resources import Tag
         return Tag()
 
+
 @behaves_like(a_resource)
 def describe_a_task():
     @pytest.fixture
     def resource():
         from zendesk_sell_firehose_client_strongmind.resources import Task
         return Task()
+
 
 @behaves_like(a_resource)
 def describe_an_unqualified_reason():
@@ -187,12 +193,14 @@ def describe_an_unqualified_reason():
         from zendesk_sell_firehose_client_strongmind.resources import UnqualifiedReason
         return UnqualifiedReason()
 
+
 @behaves_like(a_resource)
 def describe_a_user():
     @pytest.fixture
     def resource():
         from zendesk_sell_firehose_client_strongmind.resources import User
         return User()
+
 
 @behaves_like(a_resource)
 def describe_a_visit():
