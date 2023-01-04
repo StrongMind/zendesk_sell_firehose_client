@@ -1,8 +1,10 @@
 import pytest
+from faker import Faker
 from pytest_describe import behaves_like
 
 from zendesk_sell_firehose_client_strongmind import ZendeskSellFirehoseClient
 
+fake = Faker()
 
 def describe_a_zendesk_sell_firehose_client():
     @pytest.fixture
@@ -22,6 +24,12 @@ def describe_a_zendesk_sell_firehose_client():
                 ZendeskSellFirehoseClient()
             assert str(e.value) == "No API key provided"
 
+        def describe_when_api_key_is_provided():
+            key = fake.word()
+            client = ZendeskSellFirehoseClient(key)
+
+            def it_holds_api_key():
+                assert client.api_key == key
 
 def a_resource():
     def it_exists(resource):
