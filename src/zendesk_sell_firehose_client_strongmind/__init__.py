@@ -1,4 +1,6 @@
 import requests
+
+
 class ZendeskSellFirehoseClient:
     def __init__(self, bearer_token=None):
         if not bearer_token:
@@ -10,7 +12,8 @@ class ZendeskSellFirehoseClient:
                                 headers={'Authorization': f'Bearer {self.bearer_token}'},
                                 params={"position": "tail"})
         response.raise_for_status()
+        result = response.json()
         return {
-            "position": response.json()['meta']['position'],
-            "items": []
+            "position": result['meta']['position'],
+            "items": result['items']
         }
