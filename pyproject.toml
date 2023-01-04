@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zendesk_sell_firehose_client_strongmind"
+version = "0.0.1"
+authors = [
+  { name="StrongMind", email="belding@strongmind.com" },
+  { name="Mark Ng", email="mark.ng@strongmind.com" },
+  { name="Paul Shippy", email="paul.shippy@strongmind.com" }
+]
+description = "Client for ZenDesk Sell Firehose API"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/StrongMind/zendesk_sell_firehose_client"
+"Bug Tracker" = "https://github.com/StrongMind/zendesk_sell_firehose_client/issues"
