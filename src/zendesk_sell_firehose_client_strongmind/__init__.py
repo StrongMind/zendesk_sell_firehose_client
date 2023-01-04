@@ -1,5 +1,5 @@
 class ZendeskSellFirehoseClient:
-    def __init__(self, api_key=None):
-        if not api_key:
+    def __init__(self, bearer_token=None):
+        if not bearer_token:
             raise Exception("No API key provided")
-        self.api_key = api_key
+        self.bearer_token = bearer_token

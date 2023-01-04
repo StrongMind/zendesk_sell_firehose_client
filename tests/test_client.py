@@ -9,12 +9,12 @@ fake = Faker()
 
 def describe_a_zendesk_sell_firehose_client():
     @pytest.fixture
-    def api_key():
+    def bearer_token():
         return fake.word()
 
     @pytest.fixture
-    def client(api_key):
-        return ZendeskSellFirehoseClient(api_key=api_key)
+    def client(bearer_token):
+        return ZendeskSellFirehoseClient(bearer_token=bearer_token)
 
     def it_exists(client):
         assert client
@@ -25,8 +25,13 @@ def describe_a_zendesk_sell_firehose_client():
                 ZendeskSellFirehoseClient()
             assert str(e.value) == "No API key provided"
 
-        def it_holds_api_key(client, api_key):
-            assert client.api_key == api_key
+        def it_holds_api_key(client, bearer_token):
+            assert client.bearer_token == bearer_token
+
+    def describe_getting_leads():
+        def describe_when_at_top():
+            def describe_with_no_data():
+                pass
 
 
 def a_resource():
