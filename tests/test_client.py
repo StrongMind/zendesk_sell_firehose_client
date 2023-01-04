@@ -1,7 +1,10 @@
 import pytest
+import requests
 from faker import Faker
+from mockito import mock
 from pytest_describe import behaves_like
 
+from factories.zendesk_factories import ZendeskSellResponseFactory
 from zendesk_sell_firehose_client_strongmind import ZendeskSellFirehoseClient
 
 fake = Faker()
@@ -29,9 +32,28 @@ def describe_a_zendesk_sell_firehose_client():
             assert client.bearer_token == bearer_token
 
     def describe_getting_leads():
+        @pytest.fixture()
+        def zendesk_sell_response():
+            return ZendeskSellResponseFactory(top=True)
+
+        @pytest.fixture()
+        def zendesk_sell_response_request_mock(when, zendesk_sell_response, bearer_token):
+            response = mock({'status_code': 200, 'json': lambda *args, **kwargs: zendesk_sell_response})
+            when(requests).get("https://api.getbase.com/v3/leads/stream",
+                               params={"position": "tail"},
+                               headers={'Authorization': f'Bearer {bearer_token}'}).thenReturn(response)
+
+        @pytest.fixture()
+        def result(zendesk_sell_response_request_mock, client):
+            return client.get_leads()
+
         def describe_when_at_top():
             def describe_with_no_data():
-                pass
+                def it_returns_an_empty_item_set(result):
+                    assert result['items'] == []
+
+                def it_returns_a_position(result, zendesk_sell_response_request_mock, zendesk_sell_response):
+                    assert result['position'] == zendesk_sell_response["meta"]["position"]
 
 
 def a_resource():
