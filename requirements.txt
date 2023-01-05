@@ -6,6 +6,7 @@ packaging==22.0
 pluggy==1.0.0
 pytest==7.2.0
 pytest-describe==2.0.1
+pytest-mockito==0.0.4
 python-dateutil==2.8.2
 six==1.16.0
 tomli==2.0.1
