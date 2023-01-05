@@ -8,11 +8,17 @@ class ZendeskSellFirehoseClient:
         self.bearer_token = bearer_token
 
     def get_leads(self):
-        response = requests.get("https://api.getbase.com/v3/leads/stream",
-                                headers={'Authorization': f'Bearer {self.bearer_token}'},
-                                params={"position": "tail"})
-        response.raise_for_status()
-        result = response.json()
+        position = "tail"
+        top = False
+        while not top:
+            response = requests.get("https://api.getbase.com/v3/leads/stream",
+                                    headers={'Authorization': f'Bearer {self.bearer_token}'},
+                                    params={"position": position})
+            response.raise_for_status()
+
+            result = response.json()
+            position = result['meta']['position']
+            top = result['meta']['top']
         return {
             "position": result['meta']['position'],
             "items": result['items']

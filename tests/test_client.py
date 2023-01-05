@@ -70,7 +70,8 @@ def describe_a_zendesk_sell_firehose_client():
                 with pytest.raises(requests.HTTPError):
                     client.get_leads()
 
-        def describe_when_at_top():
+        def describe_when_all_data_is_in_one_response():
+            # when tail and top are the same page.
             def describe_with_no_data():
                 def it_returns_an_empty_item_set(result):
                     assert result['items'] == []
@@ -85,9 +86,48 @@ def describe_a_zendesk_sell_firehose_client():
 
                 @pytest.fixture()
                 def zendesk_sell_response(leads):
-                    return ZendeskSellResponseFactory(items=leads)
+                    return ZendeskSellResponseFactory(items=leads, top=True)
 
                 def it_returns_leads_as_items(result, zendesk_sell_response_request_mock, leads):
                     assert result['items'] == leads
 
+        def describe_when_data_is_in_multiple_responses():
+            # when tail and top are not the same page.
+            @pytest.fixture()
+            def zendesk_sell_responses():
+                responses = ZendeskSellResponseFactory.build_batch(fake.random_int(min=3, max=5))
+                responses.append(ZendeskSellResponseFactory(top=True))
+                return responses
 
+            @pytest.fixture()
+            def zendesk_sell_response_http_responses(zendesk_sell_responses):
+                mocks = []
+
+                class RequestMock:
+                    def __init__(self, mock_response):
+                        self.response = mock_response
+
+                    status = 200
+
+                    def json(self):
+                        return self.response
+
+                    def raise_for_status(self):
+                        pass
+
+                for response in zendesk_sell_responses:
+                    mocks.append(RequestMock(response))
+                return mocks
+
+            @pytest.fixture()
+            def zendesk_sell_response_request_mock(when, bearer_token, zendesk_sell_response_http_responses):
+                previous_position = "tail"
+                for response in zendesk_sell_response_http_responses:
+                    when(requests).get("https://api.getbase.com/v3/leads/stream",
+                                       params={"position": previous_position},
+                                       headers={'Authorization': f'Bearer {bearer_token}'}).thenReturn(
+                        response)
+                    previous_position = response.json()['meta']['position']
+
+            def it_returns_the_last_position(result, zendesk_sell_response_request_mock, zendesk_sell_responses):
+                assert result['position'] == zendesk_sell_responses[-1]["meta"]["position"]
