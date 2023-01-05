@@ -8,6 +8,7 @@ class ZendeskSellFirehoseClient:
         self.bearer_token = bearer_token
 
     def get_leads(self):
+        items = []
         position = "tail"
         top = False
         while not top:
@@ -19,7 +20,8 @@ class ZendeskSellFirehoseClient:
             result = response.json()
             position = result['meta']['position']
             top = result['meta']['top']
+            items.extend(result['items'])
         return {
             "position": result['meta']['position'],
-            "items": result['items']
+            "items": items
         }

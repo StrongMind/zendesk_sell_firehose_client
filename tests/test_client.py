@@ -131,3 +131,31 @@ def describe_a_zendesk_sell_firehose_client():
 
             def it_returns_the_last_position(result, zendesk_sell_response_request_mock, zendesk_sell_responses):
                 assert result['position'] == zendesk_sell_responses[-1]["meta"]["position"]
+
+            def it_returns_no_items(result, zendesk_sell_response_request_mock, zendesk_sell_responses):
+                assert result['items'] == []
+
+            def describe_with_leads():
+                @pytest.fixture()
+                def leads():
+                    return ZendeskLeadFactory.build_batch(fake.random_int(min=5, max=15))
+
+                @pytest.fixture()
+                def zendesk_sell_responses(leads):
+                    responses = []
+                    # spread the leads across the pages randomly
+                    while len(leads) > 0:
+                        # make half of pages blank, as this is a regular case for the firehose API
+                        responses.append(ZendeskSellResponseFactory(items=[], top=False))
+                        top = False
+                        random_slice = fake.random_int(min=1, max=len(leads))
+                        # if we're on the last page, make sure that top is true
+                        if len(leads) == random_slice:
+                            top = True
+                        responses.append(ZendeskSellResponseFactory(items=leads[:random_slice],
+                                                                    top=top))
+                        leads = leads[random_slice:]
+                    return responses
+
+                def it_returns_leads_as_items(result, zendesk_sell_response_request_mock, leads):
+                    assert result['items'] == leads
