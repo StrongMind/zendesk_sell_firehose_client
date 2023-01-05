@@ -159,3 +159,31 @@ def describe_a_zendesk_sell_firehose_client():
 
                 def it_returns_leads_as_items(result, zendesk_sell_response_request_mock, leads):
                     assert result['items'] == leads
+
+                def describe_when_data_is_in_multiple_responses_and_random_position_is_provided():
+                    @pytest.fixture()
+                    def random_position():
+                        return fake.word()
+
+                    @pytest.fixture()
+                    def zendesk_sell_response_request_mock(when, bearer_token, zendesk_sell_response_http_responses,
+                                                           random_position):
+                        previous_position = random_position
+                        for response in zendesk_sell_response_http_responses:
+                            when(requests).get("https://api.getbase.com/v3/leads/stream",
+                                               params={"position": previous_position},
+                                               headers={'Authorization': f'Bearer {bearer_token}'}).thenReturn(
+                                response)
+                            previous_position = response.json()['meta']['position']
+
+                    @pytest.fixture()
+                    def result(zendesk_sell_response_request_mock, client, zendesk_sell_responses, random_position):
+                        return client.get_leads(random_position)
+
+                    def it_returns_the_last_position(result,
+                                                     zendesk_sell_responses):
+                        assert result['position'] == zendesk_sell_responses[-1]['meta']['position']
+
+                    def it_returns_leads_on_pages_beyond_provided_position(result,
+                                                                           leads):
+                        assert result['items'] == leads

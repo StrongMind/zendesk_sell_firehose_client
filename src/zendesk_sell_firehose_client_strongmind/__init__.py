@@ -7,9 +7,8 @@ class ZendeskSellFirehoseClient:
             raise Exception("No API key provided")
         self.bearer_token = bearer_token
 
-    def get_leads(self):
+    def get_leads(self, position="tail"):
         items = []
-        position = "tail"
         top = False
         while not top:
             response = requests.get("https://api.getbase.com/v3/leads/stream",
