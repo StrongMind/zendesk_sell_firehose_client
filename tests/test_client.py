@@ -5,7 +5,7 @@ from mockito import mock
 from pytest_describe import behaves_like
 
 from factories.zendesk_factories import ZendeskSellResponseFactory, ZendeskLeadFactory, ZendeskGenericResourceFactory
-from zendesk_sell_firehose_client_strongmind import ZendeskSellFirehoseClient
+from zendesk_sell_firehose_client import ZendeskSellFirehoseClient
 
 fake = Faker()
 
