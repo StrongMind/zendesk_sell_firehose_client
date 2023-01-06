@@ -5,20 +5,20 @@ from factory import DictFactory, ListFactory
 
 class ZendeskLeadFactory(DictFactory):
     data = {
-        "id": 4255984,
-        "creator_id": 190756,
-        "owner_id": 190756,
+        "id": factory.Faker("random_int"),
+        "creator_id": factory.Faker("random_int"),
+        "owner_id": factory.Faker("random_int"),
         "first_name": "ABC",
         "last_name": "XYZ",
         "organization_name": None,
         "status": "New",
-        "source_id": 134455,
+        "source_id": factory.Faker("random_int"),
         "title": "CEO",
         "description": None,
         "industry": None,
         "website": None,
         "email": None,
-        "phone": "1234-5677",
+        "phone": factory.Faker("random_int"),
         "mobile": None,
         "fax": None,
         "twitter": None,
@@ -37,7 +37,7 @@ class ZendeskLeadFactory(DictFactory):
                 "data": {
                     "name": "ABC",
                     "resource_type": "lead",
-                    "id": 512665
+                    "id": factory.Faker("random_int")
                 },
                 "meta": {
                     "type": "tag"
@@ -51,7 +51,7 @@ class ZendeskLeadFactory(DictFactory):
                     "data": {
                         "name": "myField",
                         "resource_type": "lead",
-                        "id": 29609,
+                        "id": factory.Faker("random_int"),
                         "type": "bool"
                     },
                     "meta": {
