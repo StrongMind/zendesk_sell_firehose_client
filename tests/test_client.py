@@ -58,10 +58,10 @@ def describe_a_zendesk_sell_firehose_client():
         @pytest.fixture
         def resource_name():
             return "appointment"
+
         @pytest.fixture
         def sut(client):
             return client.get_appointments
-
 
 
 def getting_resources():
@@ -72,7 +72,6 @@ def getting_resources():
     @pytest.fixture
     def resource_factory():
         return ZendeskGenericResourceFactory
-
 
     @pytest.fixture()
     def zendesk_sell_response():
@@ -230,5 +229,5 @@ def getting_resources():
                     assert result['position'] == zendesk_sell_responses[-1]['meta']['position']
 
                 def it_returns_resources_on_pages_beyond_provided_position(result,
-                                                                       resources):
+                                                                           resources):
                     assert result['items'] == resources
