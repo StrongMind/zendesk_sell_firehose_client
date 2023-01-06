@@ -4,7 +4,7 @@ from faker import Faker
 from mockito import mock
 from pytest_describe import behaves_like
 
-from factories.zendesk_factories import ZendeskSellResponseFactory, ZendeskLeadFactory
+from factories.zendesk_factories import ZendeskSellResponseFactory, ZendeskLeadFactory, ZendeskGenericResourceFactory
 from zendesk_sell_firehose_client_strongmind import ZendeskSellFirehoseClient
 
 fake = Faker()
@@ -34,18 +34,45 @@ def describe_a_zendesk_sell_firehose_client():
     @behaves_like(getting_resources)
     def describe_getting_leads():
         @pytest.fixture
-        def resource_name():
+        def sut(client):
+            return client.get_leads
+
+        @pytest.fixture
+        def resource_name_plural():
             return "leads"
+
+        @pytest.fixture
+        def resource_name():
+            return "lead"
 
         @pytest.fixture
         def resource_factory():
             return ZendeskLeadFactory
+
+    @behaves_like(getting_resources)
+    def describe_getting_appointments():
+        @pytest.fixture
+        def resource_name_plural():
+            return "appointments"
+
+        @pytest.fixture
+        def resource_name():
+            return "appointment"
+        @pytest.fixture
+        def sut(client):
+            return client.get_appointments
+
 
 
 def getting_resources():
     @pytest.fixture()
     def resources():
         return []
+
+    @pytest.fixture
+    def resource_factory():
+        return ZendeskGenericResourceFactory
+
 
     @pytest.fixture()
     def zendesk_sell_response():
@@ -60,15 +87,18 @@ def getting_resources():
         })
 
     @pytest.fixture()
-    def zendesk_sell_response_request_mock(when, bearer_token, zendesk_sell_response_http_response):
-        when(requests).get("https://api.getbase.com/v3/leads/stream",
+    def zendesk_sell_response_request_mock(when,
+                                           bearer_token,
+                                           zendesk_sell_response_http_response,
+                                           resource_name_plural):
+        when(requests).get(f"https://api.getbase.com/v3/{resource_name_plural}/stream",
                            params={"position": "tail"},
                            headers={'Authorization': f'Bearer {bearer_token}'}).thenReturn(
             zendesk_sell_response_http_response)
 
     @pytest.fixture()
-    def result(zendesk_sell_response_request_mock, client):
-        return client.get_leads()
+    def result(zendesk_sell_response_request_mock, sut):
+        return sut()
 
     def describe_when_error_response_is_returned():
         @pytest.fixture()
@@ -78,9 +108,9 @@ def getting_resources():
 
             return mock({'status_code': 400, 'raise_for_status': raise_for_status})
 
-        def it_raises_exception(zendesk_sell_response_request_mock, client):
+        def it_raises_exception(zendesk_sell_response_request_mock, sut):
             with pytest.raises(requests.HTTPError):
-                client.get_leads()
+                sut()
 
     def describe_when_all_data_is_in_one_response():
         # when tail and top are the same page.
@@ -91,7 +121,7 @@ def getting_resources():
             def it_returns_a_position(result, zendesk_sell_response_request_mock, zendesk_sell_response):
                 assert result['position'] == zendesk_sell_response["meta"]["position"]
 
-        def describe_with_leads():
+        def describe_with_resources():
             @pytest.fixture()
             def resources():
                 return ZendeskLeadFactory.build_batch(4)
@@ -100,7 +130,7 @@ def getting_resources():
             def zendesk_sell_response(resources):
                 return ZendeskSellResponseFactory(items=resources, top=True)
 
-            def it_returns_leads_as_items(result, zendesk_sell_response_request_mock, resources):
+            def it_returns_resources_as_items(result, zendesk_sell_response_request_mock, resources):
                 assert result['items'] == resources
 
     def describe_when_data_is_in_multiple_responses():
@@ -132,10 +162,13 @@ def getting_resources():
             return mocks
 
         @pytest.fixture()
-        def zendesk_sell_response_request_mock(when, bearer_token, zendesk_sell_response_http_responses):
+        def zendesk_sell_response_request_mock(when,
+                                               bearer_token,
+                                               zendesk_sell_response_http_responses,
+                                               resource_name_plural):
             previous_position = "tail"
             for response in zendesk_sell_response_http_responses:
-                when(requests).get("https://api.getbase.com/v3/leads/stream",
+                when(requests).get(f"https://api.getbase.com/v3/{resource_name_plural}/stream",
                                    params={"position": previous_position},
                                    headers={'Authorization': f'Bearer {bearer_token}'}).thenReturn(
                     response)
@@ -147,7 +180,7 @@ def getting_resources():
         def it_returns_no_items(result, zendesk_sell_response_request_mock, zendesk_sell_responses):
             assert result['items'] == []
 
-        def describe_with_leads():
+        def describe_with_resources():
             @pytest.fixture()
             def resources():
                 return ZendeskLeadFactory.build_batch(fake.random_int(min=5, max=15))
@@ -155,7 +188,7 @@ def getting_resources():
             @pytest.fixture()
             def zendesk_sell_responses(resources):
                 responses = []
-                # spread the leads across the pages randomly
+                # spread the resources across the pages randomly
                 while len(resources) > 0:
                     # make half of pages blank, as this is a regular case for the firehose API
                     responses.append(ZendeskSellResponseFactory(items=[], top=False))
@@ -169,7 +202,7 @@ def getting_resources():
                     resources = resources[random_slice:]
                 return responses
 
-            def it_returns_leads_as_items(result, zendesk_sell_response_request_mock, resources):
+            def it_returns_resources_as_items(result, zendesk_sell_response_request_mock, resources):
                 assert result['items'] == resources
 
             def describe_when_data_is_in_multiple_responses_and_random_position_is_provided():
@@ -179,23 +212,23 @@ def getting_resources():
 
                 @pytest.fixture()
                 def zendesk_sell_response_request_mock(when, bearer_token, zendesk_sell_response_http_responses,
-                                                       random_position):
+                                                       random_position, resource_name_plural):
                     previous_position = random_position
                     for response in zendesk_sell_response_http_responses:
-                        when(requests).get("https://api.getbase.com/v3/leads/stream",
+                        when(requests).get(f"https://api.getbase.com/v3/{resource_name_plural}/stream",
                                            params={"position": previous_position},
                                            headers={'Authorization': f'Bearer {bearer_token}'}).thenReturn(
                             response)
                         previous_position = response.json()['meta']['position']
 
                 @pytest.fixture()
-                def result(zendesk_sell_response_request_mock, client, zendesk_sell_responses, random_position):
-                    return client.get_leads(random_position)
+                def result(zendesk_sell_response_request_mock, client, zendesk_sell_responses, random_position, sut):
+                    return sut(random_position)
 
                 def it_returns_the_last_position(result,
                                                  zendesk_sell_responses):
                     assert result['position'] == zendesk_sell_responses[-1]['meta']['position']
 
-                def it_returns_leads_on_pages_beyond_provided_position(result,
+                def it_returns_resources_on_pages_beyond_provided_position(result,
                                                                        resources):
                     assert result['items'] == resources

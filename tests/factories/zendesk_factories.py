@@ -2,6 +2,25 @@ import factory
 from factory import DictFactory, ListFactory
 
 
+class ZendeskGenericResourceFactory(DictFactory):
+    class Params:
+        type = "generic_resource"
+
+    data = {
+        "id": factory.Faker("random_int"),
+    }
+    meta = {
+        "event_id": "XqEROfOwTCucD-qjE1cO6w",
+        "event_cause": "interaction",
+        "sequence": 1,
+        "event_type": "updated",
+        "previous": {
+            "title": "123"
+        },
+        "type": factory.SelfAttribute("..type"),
+        "event_time": "2016-08-18T07:29:42Z"
+    }
+
 
 class ZendeskLeadFactory(DictFactory):
     data = {
@@ -73,6 +92,7 @@ class ZendeskLeadFactory(DictFactory):
         "type": "lead",
         "event_time": "2016-08-18T07:29:42Z"
     }
+
 
 class ZendeskSellResponseFactory(DictFactory):
     class Params:
