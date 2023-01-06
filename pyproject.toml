@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "zendesk_sell_firehose_client"
 version = "0.0.3"
 authors = [
-  { name="StrongMind", email="belding@strongmind.com" },
+  { name="StrongMind", email="teambelding@strongmind.com" },
   { name="Mark Ng", email="mark.ng@strongmind.com" },
   { name="Paul Shippy", email="paul.shippy@strongmind.com" }
 ]
